@@ -17,17 +17,29 @@ def predict():
     @task
     def prepare_features_with_io_task():
         features_path = os.path.join(DATA_FOLDER, f'prepared_features_{datetime.now()}.parquet')
+        train_model_with_io(features_path=feature_path, model_registry_folder=MODEL_REGISTRY_FOLDER)
+
+        feature_path = prepare_features_task()
+        train_model_task(feature_path)
         prepare_features_with_io(data_path=GENERATED_DATA_PATH,
                                  features_path=features_path,
                                  training_mode=False)
         return features_path
 
-    # Start completing predict task
-    # predict = PythonOperator()
-    # End completing predict task
 
-    # feature_path = prepare_features_with_io_task()
-    # predict_with_io_task(feature_path=feature_path)
+
+    @task
+    def predict_model_task(feature_path:str)-> None:
+	    prepare_features_with_io(features_path=feature_path, model_registry_folder=MODEL_REGISTRY_FOLDER)
+
+	    feature_path = prepare_features_task()
+
+        # Start completing predict task
+        #  predict = PythonOperator()
+        # End completing predict task
+
+    feature_path = prepare_features_with_io_task()
+    predict_model_task(feature_path=feature_path)
 
 
 predict_dag = predict()
